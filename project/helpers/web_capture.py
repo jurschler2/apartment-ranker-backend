@@ -1,3 +1,4 @@
+import os
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import Select, WebDriverWait
@@ -6,13 +7,13 @@ from selenium.common.exceptions import TimeoutException, NoSuchElementException
 from webdriver_manager.chrome import ChromeDriverManager
 
 # run selenium headless
-CHROMEDRIVER_PATH = “/app/.chromedriver/bin/chromedriver”
-chrome_bin = os.environ.get(‘GOOGLE_CHROME_BIN’, “chromedriver”)
+CHROMEDRIVER_PATH = "/app/.chromedriver/bin/chromedriver"
+chrome_bin = os.environ.get("GOOGLE_CHROME_BIN", "chromedriver")
 options = webdriver.ChromeOptions()
 options.binary_location = chrome_bin
-options.add_argument(“ — disable-gpu”)
-options.add_argument(“ — no-sandbox”)
-options.add_argument(‘ — headless’)
+options.add_argument("—-disable-gpu")
+options.add_argument("--no-sandbox")
+options.add_argument("--headless")
 driver = webdriver.Chrome(executable_path=CHROMEDRIVER_PATH,
                           chrome_options=options)
 
