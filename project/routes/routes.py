@@ -59,7 +59,7 @@ def get_every_apartment():
 def generate_user():
     """ POST a new user """
 
-    user = User.create_user(ip_address=request.remote_addr)
+    user = User.create_user(ip_address=request.headers['X-Forwarded-For'][0])
 
     if isinstance(user, User):
         return user.serialize()
@@ -82,7 +82,7 @@ def check_user():
     If existing, return user, else return message indicating no user exists.
     """
 
-    user = User.query.get(request.remote_addr)
+    user = User.query.get(request.headers['X-Forwarded-For'][0])
 
     if isinstance(user, User):
         return user.serialize()

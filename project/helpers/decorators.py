@@ -17,7 +17,7 @@ def put_jwt_into_g():
     token = request.headers.get("Authorization")
     try:
         decoded = decode(token, SECRET_KEY, algorithms=["HS256"])
-        if decoded["user_ip_address"] == request.remote_addr:
+        if decoded["user_ip_address"] == request.headers['X-Forwarded-For'][0]:
             g.user = User.query.filter_by(user_ip_address=decoded["user_ip_address"]).first()
         else:
             g.user = None
