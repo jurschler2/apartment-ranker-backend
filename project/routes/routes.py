@@ -1,10 +1,13 @@
 """ Routes to show apartments """
 from project import db
+from flask_cors import CORS
 from flask import request, Blueprint, g
 from project.models.models import Apartment, Rankings, User
 from project.helpers.decorators import jwt_required
 
 apartment_ranker_api = Blueprint("apartment_ranker_api", __name__)
+
+CORS(apartment_ranker_api)
 
 
 @apartment_ranker_api.route('/api/apartments', methods=["POST"])
