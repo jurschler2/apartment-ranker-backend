@@ -18,7 +18,7 @@ def create_apartment():
     new_apt_url = request.json['url']
 
     output = Apartment.add_apartment(url=new_apt_url,
-                                     ip_address=g.user.user_ip_address)
+                                     user_random_id=g.user.user_random_id)
 
     return output.serialize()
 
@@ -50,7 +50,7 @@ def update_rankings(ranking_id):
 def get_every_apartment():
     """ GET every apartment for the current user """
 
-    output = Apartment.get_all_apartments(ip_address=g.user.user_ip_address)
+    output = Apartment.get_all_apartments(user_random_id=g.user.user_random_id)
 
     return output
 
@@ -59,7 +59,7 @@ def get_every_apartment():
 def generate_user():
     """ POST a new user """
 
-    user = User.create_user(ip_address=request.headers['X-Forwarded-For'][0])
+    user = User.create_user()
 
     if isinstance(user, User):
         return user.serialize()

@@ -3,6 +3,8 @@ from sqlalchemy.exc import IntegrityError
 from project.helpers.web_capture import get_apartment
 from jwt import encode
 from datetime import datetime
+import random
+import string
 
 
 class Apartment(db.Model):
@@ -14,8 +16,8 @@ class Apartment(db.Model):
     apartment_url = db.Column(db.String(145), primary_key=True, unique=True)
     apartment_address = db.Column(db.String(145), default=None)
     apartment_price = db.Column(db.String(8), default=None)
-    a_user_ip_address = db.Column(db.String(20),
-                                  db.ForeignKey("users.user_ip_address"))
+    a_user_random_id = db.Column(db.String(20),
+                                 db.ForeignKey("users.user_random_id"))
     rankings = db.relationship("Rankings",
                                backref=db.backref('apartment'), uselist=False)
     photos = db.relationship("Photo",
@@ -27,7 +29,7 @@ class Apartment(db.Model):
         return f"<Apartment {self.apartment_url}>"
 
     @classmethod
-    def add_apartment(cls, url, ip_address):
+    def add_apartment(cls, url, user_random_id):
         """
         Add a new apartment to the database.
 
@@ -40,14 +42,14 @@ class Apartment(db.Model):
         apt = Apartment(apartment_url=url,
                         apartment_address=new['address'],
                         apartment_price=new['price'],
-                        a_user_ip_address=ip_address
+                        a_user_random_id=user_random_id
                         )
         apt_photos = [Photo(photo_url=photo,
                             p_apartment_url=url) for photo in new['pics']]
 
         try:
             rankings = Rankings(r_apartment_url=apt.apartment_url,
-                                r_user_ip_address=ip_address)
+                                r_user_random_id=user_random_id)
             db.session.add(apt)
             db.session.add(rankings)
             db.session.add_all(apt_photos)
@@ -59,10 +61,10 @@ class Apartment(db.Model):
         return apt
 
     @classmethod
-    def get_all_apartments(cls, ip_address):
+    def get_all_apartments(cls, user_random_id):
         """ Return a serialized dictionary of all apartments """
 
-        apartments = Apartment.query.filter_by(a_user_ip_address=ip_address)
+        apartments = Apartment.query.filter_by(a_user_random_id=user_random_id)
 
         output = [apt.serialize() for apt in apartments]
 
@@ -107,8 +109,8 @@ class Rankings(db.Model):
     ranking_aggregate = db.Column(db.Numeric(5, 2), default=0.00)
     r_apartment_url = db.Column(db.String(145),
                                 db.ForeignKey("apartment.apartment_url"))
-    r_user_ip_address = db.Column(db.String(20),
-                                  db.ForeignKey("users.user_ip_address"))
+    r_user_random_id = db.Column(db.String(20),
+                                 db.ForeignKey("users.user_random_id"))
 
     def __repr__(self):
         """ representation of Rankings instance."""
@@ -173,7 +175,7 @@ class User(db.Model):
 
     __tablename__ = "users"
 
-    user_ip_address = db.Column(db.String(20), primary_key=True, unique=True)
+    user_random_id = db.Column(db.String(20), primary_key=True, unique=True)
     user_created = db.Column(db.DateTime, default=datetime.utcnow)
     user_last_access = db.Column(db.DateTime, default=datetime.utcnow)
     apartments = db.relationship("Apartment",
@@ -182,12 +184,12 @@ class User(db.Model):
     def __repr__(self):
         """ representation of the User instance."""
 
-        return f"<User {self.user_ip_address  }>"
+        return f"<User {self.user_random_id  }>"
 
     def generate_token(self):
         """ Using the JWT external library, generate a unique token for a user """
         encoded_jwt = encode(
-            {"user_ip_address": self.user_ip_address},
+            {"user_random_id": self.user_random_id},
             SECRET_KEY,
             algorithm="HS256",
         )
@@ -204,13 +206,21 @@ class User(db.Model):
         return {
             "token": token,
             "user": {
-                     "user_ip_address": self.user_ip_address,
+                     "user_random_id": self.user_random_id,
                      "user_last_access": self.user_last_access,
                      },
         }
 
     @classmethod
-    def create_user(cls, ip_address):
+    def generate_random_id(cls):
+        """ """
+
+        alphanumerals = string.ascii_letters + string.digits
+        output = ''.join((random.choice(alphanumerals) for i in range(10)))
+        return output
+
+    @classmethod
+    def create_user(cls):
         """
         Class method to add register a user.
         Accepts a URL and if it does not exist in the database,
@@ -218,7 +228,8 @@ class User(db.Model):
         message.
         """
 
-        user = User(user_ip_address=ip_address)
+        random_id = User.generate_random_id()
+        user = User(user_random_id=random_id)
 
         try:
             db.session.add(user)
