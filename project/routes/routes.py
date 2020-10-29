@@ -72,19 +72,23 @@ def generate_user():
 def confirm_user():
     """ GET an existing user via JWT, if existing provide confirmation """
 
-    return {"status": "confirmed"}
+    if g.user:
+        return {"status": "confirmed"}
+    else:
+        return {"status": "invalid token"}
+    
 
 
-@apartment_ranker_api.route('/api/users/check', methods=["GET"])
-def check_user():
-    """
-    GET an existing user via the request's IP address.
-    If existing, return user, else return message indicating no user exists.
-    """
+# @apartment_ranker_api.route('/api/users/check', methods=["GET"])
+# def check_user():
+#     """
+#     GET an existing user via the request's IP address.
+#     If existing, return user, else return message indicating no user exists.
+#     """
 
-    user = User.query.get(request.headers['X-Forwarded-For'][0])
+#     user = User.query.get(request.headers['X-Forwarded-For'][0])
 
-    if isinstance(user, User):
-        return user.serialize()
+#     if isinstance(user, User):
+#         return user.serialize()
 
-    return {"status": "no existing user."}
+#     return {"status": "no existing user."}

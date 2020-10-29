@@ -13,7 +13,7 @@ def make_error(message, code):
 def put_jwt_into_g():
     """ Function for grabbing the token out of the header,
     for when you don't need to error if the user isn't logged in """
-    print(f"These are the request headers: {request.headers}")
+
     token = request.headers.get("Authorization")
     try:
         decoded = decode(token, SECRET_KEY, algorithms=["HS256"])
