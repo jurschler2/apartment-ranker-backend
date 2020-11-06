@@ -75,9 +75,7 @@ def confirm_user():
     if g.user:
         return {"status": "confirmed"}
     else:
-        return {"status": "invalid token"}
-    
-
+        return {"status": "invalid"}
 
 # @apartment_ranker_api.route('/api/users/check', methods=["GET"])
 # def check_user():
